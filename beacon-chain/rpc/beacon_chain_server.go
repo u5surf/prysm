@@ -25,7 +25,7 @@ import (
 // beacon chain.
 type BeaconChainServer struct {
 	beaconDB db.Database
-	head     blockchain.HeadRetriever
+	head     interface{}
 	pool     operations.Pool
 }
 
@@ -223,13 +223,13 @@ func (bs *BeaconChainServer) ListBlocks(
 // This includes the head block slot and root as well as information about
 // the most recent finalized and justified slots.
 func (bs *BeaconChainServer) GetChainHead(ctx context.Context, _ *ptypes.Empty) (*ethpb.ChainHead, error) {
-	finalizedCheckpoint := bs.head.HeadState().FinalizedCheckpoint
-	justifiedCheckpoint := bs.head.HeadState().CurrentJustifiedCheckpoint
-	prevJustifiedCheckpoint := bs.head.HeadState().PreviousJustifiedCheckpoint
+	finalizedCheckpoint := bs.head.(blockchain.HeadRetriever).HeadState().FinalizedCheckpoint
+	justifiedCheckpoint := bs.head.(blockchain.HeadRetriever).HeadState().CurrentJustifiedCheckpoint
+	prevJustifiedCheckpoint := bs.head.(blockchain.HeadRetriever).HeadState().PreviousJustifiedCheckpoint
 
 	return &ethpb.ChainHead{
-		BlockRoot:                  bs.head.HeadRoot(),
-		BlockSlot:                  bs.head.HeadSlot(),
+		BlockRoot:                  bs.head.(blockchain.HeadRetriever).HeadRoot(),
+		BlockSlot:                  bs.head.(blockchain.HeadRetriever).HeadSlot(),
 		FinalizedBlockRoot:         finalizedCheckpoint.Root,
 		FinalizedSlot:              finalizedCheckpoint.Epoch * params.BeaconConfig().SlotsPerEpoch,
 		JustifiedBlockRoot:         justifiedCheckpoint.Root,

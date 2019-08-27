@@ -19,8 +19,11 @@ import (
 	"github.com/prysmaticlabs/prysm/shared/hashutil"
 	"github.com/prysmaticlabs/prysm/shared/mathutil"
 	"github.com/prysmaticlabs/prysm/shared/params"
+	"github.com/sirupsen/logrus"
 	"go.opencensus.io/trace"
 )
+
+var log = logrus.WithField("prefix", "transition")
 
 // ExecuteStateTransition defines the procedure for a state transition function.
 //
@@ -536,6 +539,9 @@ func ProcessEpoch(ctx context.Context, state *pb.BeaconState) (*pb.BeaconState, 
 	if err != nil {
 		return nil, errors.Wrap(err, "could not get attesting balance current epoch")
 	}
+
+	log.Error(prevEpochAttestedBalance, prevEpochAttestedBalance/params.BeaconConfig().MaxEffectiveBalance)
+	log.Error(currentEpochAttestedBalance, currentEpochAttestedBalance/params.BeaconConfig().MaxEffectiveBalance)
 
 	state, err = e.ProcessJustificationAndFinalization(state, prevEpochAttestedBalance, currentEpochAttestedBalance)
 	if err != nil {

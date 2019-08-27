@@ -11,7 +11,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gogo/protobuf/proto"
 	middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/prysmaticlabs/prysm/beacon-chain/cache"
 	"github.com/prysmaticlabs/prysm/beacon-chain/cache/depositcache"
@@ -130,11 +129,11 @@ func (s *Service) Start() {
 	opts := []grpc.ServerOption{
 		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
 		grpc.StreamInterceptor(middleware.ChainStreamServer(
-			recovery.StreamServerInterceptor(),
+			//recovery.StreamServerInterceptor(),
 			grpc_prometheus.StreamServerInterceptor,
 		)),
 		grpc.UnaryInterceptor(middleware.ChainUnaryServer(
-			recovery.UnaryServerInterceptor(),
+			//recovery.UnaryServerInterceptor(),
 			grpc_prometheus.UnaryServerInterceptor,
 		)),
 	}
@@ -193,6 +192,7 @@ func (s *Service) Start() {
 	beaconChainServer := &BeaconChainServer{
 		beaconDB: s.beaconDB,
 		pool:     s.operationService,
+		head: s.chainService,
 	}
 	pb.RegisterBeaconServiceServer(s.grpcServer, beaconServer)
 	pb.RegisterProposerServiceServer(s.grpcServer, proposerServer)
